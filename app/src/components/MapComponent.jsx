@@ -1,10 +1,33 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Map, { NavigationControl, Source, Layer, ScaleControl, FullscreenControl, Popup } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const MapComponent = ({ data }) => {
+    const mapRef = useRef(null);
     const [hoverInfo, setHoverInfo] = useState(null);
     const [selectedProperty, setSelectedProperty] = useState(null);
+
+    // Auto-zoom to fit filtered data
+    useEffect(() => {
+        if (!data || !data.features || data.features.length === 0 || !mapRef.current) return;
+        const features = data.features;
+        // Only auto-zoom if the dataset looks filtered (less than full dataset)
+        if (features.length > 50000) return;
+        let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+        for (const f of features) {
+            const [lng, lat] = f.geometry.coordinates;
+            if (lng < minLng) minLng = lng;
+            if (lng > maxLng) maxLng = lng;
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+        }
+        if (minLng !== Infinity) {
+            mapRef.current.fitBounds(
+                [[minLng, minLat], [maxLng, maxLat]],
+                { padding: 60, maxZoom: 14, duration: 800 }
+            );
+        }
+    }, [data]);
 
     const totalUnits = useMemo(() => {
         if (!data || !data.features) return 0;
@@ -83,6 +106,7 @@ const MapComponent = ({ data }) => {
     return (
         <div className="relative w-full h-full bg-slate-100 overflow-hidden">
             <Map
+                ref={mapRef}
                 initialViewState={initialViewState}
                 style={{ width: '100%', height: '100%' }}
                 mapStyle={mapStyle} // Using OSM raster tiles for free, no-token map
