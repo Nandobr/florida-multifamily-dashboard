@@ -52,6 +52,18 @@ const Sidebar = ({ filters, setFilters, counties = [], currentView, onNavigate }
                             </select>
                         </div>
 
+                        {/* City Search */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
+                            <input
+                                type="text"
+                                placeholder="Search city..."
+                                value={filters.citySearch}
+                                onChange={(e) => setFilters(prev => ({ ...prev, citySearch: e.target.value }))}
+                                className="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50 placeholder-slate-400 focus:border-brand-500 focus:ring-brand-500"
+                            />
+                        </div>
+
                         {/* Units Filter */}
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">

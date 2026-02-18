@@ -10,7 +10,8 @@ function App() {
     county: 'All Counties',
     minUnits: 10,
     yearMin: '',
-    yearMax: ''
+    yearMax: '',
+    citySearch: ''
   });
 
   // Fetch Data once
@@ -34,6 +35,9 @@ function App() {
     return allData.filter(d => {
       // County Filter
       if (filters.county !== 'All Counties' && d.county !== filters.county) return false;
+
+      // City Search Filter
+      if (filters.citySearch && !(d.city || '').toLowerCase().includes(filters.citySearch.toLowerCase())) return false;
 
       // Units Filter
       if ((d.units || 0) < filters.minUnits) return false;
