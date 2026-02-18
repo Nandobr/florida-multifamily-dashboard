@@ -15,7 +15,7 @@ function App() {
 
   // Fetch Data once
   useEffect(() => {
-    fetch(import.meta.env.BASE_URL + 'properties.json')
+    fetch(import.meta.env.BASE_URL + 'properties.json?t=' + Date.now())
       .then(res => res.json())
       .then(data => {
         setAllData(data);
