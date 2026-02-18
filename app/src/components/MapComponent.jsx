@@ -89,15 +89,20 @@ const MapComponent = ({ data }) => {
                 attributionControl={true}
                 interactiveLayerIds={['clusters', 'unclustered-point']}
                 onMouseEnter={(e) => {
-                    if (e.features[0]?.properties?.id) {
+                    e.target.getCanvas().style.cursor = 'pointer';
+                    const feature = e.features?.[0];
+                    if (feature && feature.layer.id === 'unclustered-point') {
                         setHoverInfo({
-                            feature: e.features[0],
+                            feature: feature,
                             x: e.point.x,
                             y: e.point.y
                         });
                     }
                 }}
-                onMouseLeave={() => setHoverInfo(null)}
+                onMouseLeave={(e) => {
+                    e.target.getCanvas().style.cursor = '';
+                    setHoverInfo(null);
+                }}
                 onClick={(e) => {
                     // If we clicked a cluster, we could zoom (optional)
                     // If we clicked a point (unclustered), show popup
@@ -149,35 +154,56 @@ const MapComponent = ({ data }) => {
                         closeOnClick={false}
                         className="z-30"
                     >
-                        <div className="p-1 min-w-[200px]">
-                            <h3 className="font-bold text-slate-900 text-sm mb-1">{selectedProperty.owner}</h3>
-                            <div className="text-xs text-slate-600 space-y-1">
-                                <p>{selectedProperty.address}</p>
-                                <p>{selectedProperty.city}, FL {selectedProperty.zip}</p>
-                                <div className="flex gap-2 mt-2 pt-2 border-t border-slate-100">
-                                    <div className="text-center">
-                                        <span className="block font-bold text-emerald-600">{selectedProperty.units}</span>
-                                        <span className="text-[10px] uppercase text-slate-400">Units</span>
-                                    </div>
-                                    <div className="text-center pl-2 border-l border-slate-100">
-                                        <span className="block font-bold text-brand-600">{selectedProperty.year || 'N/A'}</span>
-                                        <span className="text-[10px] uppercase text-slate-400">Built</span>
-                                    </div>
+                        <div className="p-2 min-w-[220px] text-slate-800">
+                            {/* 1. Identity */}
+                            <div className="mb-3 border-b border-slate-100 pb-2">
+                                <div className="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">Owner</div>
+                                <h3 className="font-bold text-sm leading-tight mb-1">{selectedProperty.owner || 'Unknown Owner'}</h3>
+                                <p className="text-xs text-slate-600 leading-snug">
+                                    {selectedProperty.address}<br />
+                                    {selectedProperty.city}, FL <b>{selectedProperty.zip}</b>
+                                </p>
+                            </div>
+
+                            {/* 2. Scale */}
+                            <div className="mb-3 border-b border-slate-100 pb-2">
+                                <div className="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">Scale</div>
+                                <div className="text-xs font-medium">
+                                    {selectedProperty.units} Units • {selectedProperty.year} • {selectedProperty.sqft ? selectedProperty.sqft.toLocaleString() : '-'} SqFt
                                 </div>
+                                <div className="text-xs text-slate-500 italic mt-0.5">
+                                    estimated ~{selectedProperty.sqft && selectedProperty.units ? Math.round(selectedProperty.sqft / selectedProperty.units) : '-'} SqFt / unit
+                                </div>
+                            </div>
+
+                            {/* 3. Investment */}
+                            <div>
+                                <div className="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">Investment</div>
+                                <div className="text-base font-bold text-emerald-700 mb-1">
+                                    {selectedProperty.value ? '$' + (selectedProperty.value / 1000000).toFixed(1) + 'M' : 'N/A'} Estimate
+                                </div>
+                                {selectedProperty.sale_price ? (
+                                    <div className="text-xs text-slate-600">
+                                        <div className="font-semibold text-slate-500 mb-0.5">Last Sold:</div>
+                                        <div>
+                                            <b>${(selectedProperty.sale_price / 1000000).toFixed(1)}M</b> ({selectedProperty.sale_year})
+                                            <span className="text-slate-500 ml-1">- est. ${(selectedProperty.sale_price / selectedProperty.units / 1000).toFixed(0)}k/unit</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-xs text-slate-400 mt-1 italic">No recent sale data</div>
+                                )}
                             </div>
                         </div>
                     </Popup>
                 )}
 
                 {hoverInfo && !selectedProperty && (
-                    <div className="absolute z-20 bg-white p-3 rounded-lg shadow-xl text-sm pointer-events-none border border-slate-100" style={{ left: hoverInfo.x + 10, top: hoverInfo.y + 10 }}>
-                        <div className="font-bold text-slate-800">{hoverInfo.feature.properties.owner}</div>
-                        <div className="text-slate-600">{hoverInfo.feature.properties.address}</div>
-                        <div className="mt-1 flex items-center gap-2">
-                            <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-xs font-medium">
-                                {hoverInfo.feature.properties.units} Units
-                            </span>
-                            <span className="text-slate-400 text-xs">{hoverInfo.feature.properties.city}</span>
+                    <div className="absolute z-20 bg-white px-3 py-2 rounded-lg shadow-xl text-xs pointer-events-none border border-slate-100" style={{ left: hoverInfo.x + 10, top: hoverInfo.y + 10 }}>
+                        <div className="font-bold text-slate-800 text-sm leading-tight">{hoverInfo.feature.properties.owner}</div>
+                        <div className="text-slate-500 mt-0.5">{hoverInfo.feature.properties.city}, FL</div>
+                        <div className="text-slate-600 mt-0.5">
+                            · <span className="font-semibold">{hoverInfo.feature.properties.units} Units</span> · {(() => { const v = hoverInfo.feature.properties.value; if (!v) return 'N/A'; return v >= 1000000 ? '$' + (v / 1000000).toFixed(1) + 'M' : '$' + Math.round(v / 1000) + 'k'; })()}
                         </div>
                     </div>
                 )}
@@ -193,7 +219,7 @@ const MapComponent = ({ data }) => {
                     </div>
                     <div>
                         <div className="text-2xl font-bold text-emerald-600">
-                            {data ? Math.round(totalUnits / 1000) + 'k' : '-'}
+                            {data ? (() => { const u = totalUnits; return u >= 1000000 ? (u / 1000000).toFixed(1) + 'M' : u >= 1000 ? (u / 1000).toFixed(1) + 'k' : u; })() : '-'}
                         </div>
                         <div className="text-xs text-slate-500 font-medium">Total Units</div>
                     </div>

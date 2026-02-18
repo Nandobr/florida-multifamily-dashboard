@@ -15,6 +15,8 @@ KEEP_COLS = [
     'LND_VAL', 'NO_LND_UNTS', 'LND_SQFOOT',
     'ACT_YR_BLT', 'EFF_YR_BLT', 'TOT_LVG_AREA',
     'NO_BULDNG', 'NO_RES_UNTS',
+    'SALE_PRC1', 'SALE_YR1', 'SALE_MO1',
+    'SALE_PRC2', 'SALE_YR2', 'SALE_MO2',
     'OWN_NAME', 'OWN_ADDR1', 'OWN_ADDR2', 'OWN_CITY', 'OWN_STATE', 'OWN_ZIPCD',
     'PHY_ADDR1', 'PHY_ADDR2', 'PHY_CITY', 'PHY_ZIPCD',
 ]
@@ -94,7 +96,9 @@ def ingest_all_counties(nal_dir: str, output_path: str):
     
     # Convert remaining numeric fields
     for col in ['JV', 'AV_NSD', 'TV_NSD', 'LND_VAL', 'LND_SQFOOT',
-                'TOT_LVG_AREA', 'NO_BULDNG', 'ACT_YR_BLT', 'EFF_YR_BLT']:
+                'TOT_LVG_AREA', 'NO_BULDNG', 'ACT_YR_BLT', 'EFF_YR_BLT',
+                'SALE_PRC1', 'SALE_YR1', 'SALE_MO1',
+                'SALE_PRC2', 'SALE_YR2', 'SALE_MO2']:
         if col in result.columns:
             result[col] = pd.to_numeric(result[col], errors='coerce')
     

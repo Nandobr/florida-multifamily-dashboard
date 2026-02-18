@@ -32,7 +32,8 @@ def export_for_app(input_path, output_path):
     # Select columns for frontend
     cols = [
         'PARCEL_ID', 'COUNTY_NAME', 'PHY_ADDR1', 'PHY_CITY', 'PHY_ZIPCD',
-        'NO_RES_UNTS', 'ACT_YR_BLT', 'OWN_NAME', 'latitude', 'longitude'
+        'NO_RES_UNTS', 'ACT_YR_BLT', 'OWN_NAME', 'latitude', 'longitude',
+        'SALE_PRC1', 'SALE_YR1', 'JV', 'TOT_LVG_AREA'
     ]
     
     # Rename for lighter JSON keys if desired, or keep as is.
@@ -45,7 +46,11 @@ def export_for_app(input_path, output_path):
         'ACT_YR_BLT': 'year',
         'OWN_NAME': 'owner',
         'COUNTY_NAME': 'county',
-        'PARCEL_ID': 'id'
+        'PARCEL_ID': 'id',
+        'SALE_PRC1': 'sale_price',
+        'SALE_YR1': 'sale_year',
+        'JV': 'value',
+        'TOT_LVG_AREA': 'sqft'
     }
     
     final_df = export_df[cols].rename(columns=rename_map)
