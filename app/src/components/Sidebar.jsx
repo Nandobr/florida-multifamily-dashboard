@@ -32,9 +32,17 @@ const Sidebar = ({ filters, setFilters, counties = [], currentView, onNavigate }
 
                 {/* Filters Section */}
                 <div>
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <Filter size={14} /> Filters
-                    </h3>
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                            <Filter size={14} /> Filters
+                        </h3>
+                        <button
+                            onClick={() => setFilters({ county: 'All Counties', minUnits: 10, yearMin: '', yearMax: '', citySearch: '' })}
+                            className="text-[10px] font-medium text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-0.5 rounded transition-colors"
+                        >
+                            Reset
+                        </button>
+                    </div>
 
                     <div className="space-y-4">
                         {/* County Filter */}
